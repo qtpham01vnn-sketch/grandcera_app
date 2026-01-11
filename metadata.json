@@ -1,0 +1,7 @@
+{
+  "name": "PHƯƠNG NAM STUDIO",
+  "description": "Ứng dụng trợ lý AI kiến trúc và showroom gạch chuyên nghiệp cho Phương Nam Studio.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
