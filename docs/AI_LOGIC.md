@@ -1,19 +1,19 @@
-# Logic AI & Chiến lược Diễn họa (AI Logic) - V12.2
+# Logic AI & Chiến lược Diễn họa (AI Logic) - V12.3
 
 ## 1. Hệ thống AI Orchestrator (Đa tầng)
 Đây là "bộ não" điều khiển toàn bộ quá trình render, đảm bảo tính ổn định và chính xác.
 
 ### Nguyên lý hoạt động (The Pipeline)
 1.  **Input:** Base Image (Ảnh hiện trạng) + Vật liệu (Tiles/Paint) + Phương án (PA).
-2.  **Giai đoạn 1 - Vision Analysis (Gemini 1.5 Flash):**
-    - Sử dụng mô hình `gemini-1.5-flash` để "nhìn" và mô tả cấu trúc phòng.
+2.  **Giai đoạn 1 - Vision Analysis (Gemini 2.0 Flash):**
+    - Sử dụng **SDK @google/genai** với model `gemini-2.0-flash` để phân tích cấu trúc phòng.
     - Output: Một đoạn văn mô tả tiếng Anh về vị trí tường, sàn, cầu thang, cửa.
-3.  **Giai đoạn 2 - prompt Synthesis:**
+3.  **Giai đoạn 2 - Prompt Synthesis:**
     - Kết hợp mô tả bối cảnh từ GĐ1 + Metadata vật liệu + Logic ốp lát của PA đã chọn.
     - Tạo ra một Prompt cực kỳ chi tiết cho bước diễn họa.
 4.  **Giai đoạn 3 - Rendering:**
     - Thử nghiệm Render bằng Gemini (để lấy độ chi tiết cao nhất).
-    - **Fallback:** Tự động chuyển sang Flux (Pollinations) nếu Gemini lỗi. Nhờ có mô tả từ GĐ1, Flux vẫn vẽ đúng bối cảnh.
+    - **Fallback:** Tự động chuyển sang **Flux (Pollinations.ai)** endpoint mới `pollinations.ai/p/` nếu Gemini lỗi.
 
 ## 2. Quy tắc "Khóa Kiến trúc" (Structural Integrity)
 Để giải quyết vấn đề AI tự ý thay đổi khung nhà, chúng tôi áp dụng 3 lớp bảo vệ:

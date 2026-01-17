@@ -1,7 +1,15 @@
 
 # Nhật ký Cập nhật Grandcera AI
 
-## Phiên bản Hiện tại: V12.2 (Tháng 1/2026)
+## Phiên bản Hiện tại: V12.3 (Tháng 1/2026)
+
+### V12.3 - "Gemini SDK Migration & Pollinations Update" (17/01/2026)
+- Chuyển đổi từ **REST API fetch** sang **SDK @google/genai** để gọi Gemini API ổn định hơn.
+- Sử dụng model **gemini-2.0-flash** (mới nhất của Google AI).
+- Thiết lập **Google Cloud Billing** với $300 free credit để vượt qua giới hạn free tier.
+- Cập nhật **Pollinations.ai endpoint mới** (`pollinations.ai/p/`) do endpoint cũ đã ngừng hoạt động.
+- Giảm số phương án ốp lát từ **7 PA xuống 6 PA** (loại bỏ PA7 Ốp So Le).
+- Thêm hiển thị **số phiên bản v1.0.2** trên sidebar để theo dõi deployment.
 
 ### V12.2 - "GitHub Sync & Vercel Deployment"
 - Khởi tạo hệ thống quản lý phiên bản Git cho toàn bộ dự án.

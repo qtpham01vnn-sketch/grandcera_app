@@ -410,7 +410,7 @@ const App: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="px-4 py-2 text-right text-[7px] text-slate-600 uppercase tracking-widest">v1.0.1</div>
+          <div className="px-4 py-3 text-right text-[9px] text-slate-400 uppercase tracking-widest border-t border-white/5">v1.0.2</div>
         </aside>
 
         <section className="flex-1 flex flex-col p-4 relative bg-[#020617]">

@@ -1,30 +1,12 @@
 
+import { GoogleGenAI } from "@google/genai";
 import { TileData, TilingMethod, PaintData } from "../../../types";
 
-const callGeminiAPI = async (payload: any) => {
+// Helper để lấy AI instance an toàn
+const getAI = () => {
     const key = import.meta.env.VITE_GEMINI_API_KEY;
     if (!key) throw new Error("API Key không tìm thấy trong .env.local");
-
-    // Sử dụng model v1 ổn định
-    const model = "gemini-1.5-flash-latest";
-    const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${key}`;
-
-    console.log("📡 Calling Gemini API:", url);
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        console.error("❌ Gemini API Error:", errorData);
-        throw new Error(errorData.error?.message || "Lỗi kết nối Gemini");
-    }
-
-    const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    return new GoogleGenAI({ apiKey: key });
 };
 
 // ============================================
@@ -33,37 +15,51 @@ const callGeminiAPI = async (payload: any) => {
 export const analyzeTileFromImage = async (imageBase64: string): Promise<string> => {
     const prompt = `BẠN LÀ CHUYÊN GIA VẬT LIỆU XÂY DỰNG CỦA GRANDCERA. Hãy phân tích ảnh mẫu gạch này và đề xuất thông số...`;
 
-    const payload = {
-        contents: [{
-            parts: [
-                { text: prompt },
-                { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 } }
-            ]
-        }]
-    };
+    const parts = [
+        { text: prompt },
+        { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 } }
+    ];
 
-    return await callGeminiAPI(payload);
+    try {
+        const ai = getAI();
+        console.log("📡 Calling Gemini SDK for tile analysis...");
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: [{ role: 'user', parts }]
+        });
+        return response.text || "";
+    } catch (error) {
+        console.error("❌ Gemini Tile Analysis Error:", error);
+        throw error;
+    }
 };
 
 // ============================================
 // HÀM CHAT AI TƯ VẤN
 // ============================================
 export const getAIChatResponse = async (message: string, imageBase64?: string) => {
-    const parts: any[] = [{ text: message }];
+    const systemPrompt = "BẠN LÀ CHUYÊN GIA TƯ VẤN CỦA GRANDCERA - PHƯƠNG NAM STUDIO. Trả lời bằng tiếng Việt, chuyên nghiệp, ngắn gọn.";
+    const fullMessage = `${systemPrompt}\n\nKhách hỏi: ${message}`;
+
+    const parts: any[] = [{ text: fullMessage }];
     if (imageBase64) {
         parts.push({
-            inline_data: { mime_type: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 }
+            inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 }
         });
     }
 
-    const payload = {
-        contents: [{ parts }],
-        systemInstruction: {
-            parts: [{ text: "BẠN LÀ CHUYÊN GIA TƯ VẤN CỦA GRANDCERA. Trả lời bằng tiếng Việt, chuyên nghiệp." }]
-        }
-    };
-
-    return await callGeminiAPI(payload);
+    try {
+        const ai = getAI();
+        console.log("📡 Calling Gemini SDK for chat...");
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: [{ role: 'user', parts }]
+        });
+        return response.text || "";
+    } catch (error) {
+        console.error("❌ Gemini Chat Error:", error);
+        throw error;
+    }
 };
 
 // ============================================
@@ -73,16 +69,18 @@ export const describeRoomLayout = async (imageBase64: string): Promise<string> =
     try {
         const prompt = `Act as an Architect. Analyze this interior image and describe the structural layout in detail (walls, furniture, stairs). Reply in English, concisely.`;
 
-        const payload = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 } }
-                ]
-            }]
-        };
+        const parts = [
+            { text: prompt },
+            { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] || imageBase64 } }
+        ];
 
-        return await callGeminiAPI(payload);
+        const ai = getAI();
+        console.log("📡 Calling Gemini SDK for room analysis...");
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: [{ role: 'user', parts }]
+        });
+        return response.text || "";
     } catch (error) {
         console.error("❌ Gemini Vision Error:", error);
         return "An interior construction site, raw brick walls, concrete ceilings, same structural layout as uploaded base image.";
