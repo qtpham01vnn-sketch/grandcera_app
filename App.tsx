@@ -8,15 +8,14 @@ import { designService, SavedDesign } from './services/designService';
 
 const BRAND_COLOR = "#701a1a";
 
-// 7 PHƯƠNG ÁN ỐP LÁT
+// 6 PHƯƠNG ÁN ỐP LÁT
 const TILING_METHODS: TilingMethodInfo[] = [
-  { id: 'PA1_full_height', name: 'PA1: Ốp Kịch Trần', icon: '🏛️', description: 'Ốp 100% từ sàn lên trần, không sơn', requiresPaint: false },
-  { id: 'PA2_standard_3_1', name: 'PA2: 3 Thân + 1 Viền', icon: '📐', description: '3 hàng thân + 1 viền, phần trên sơn nước', requiresPaint: true, heightCm: 120 },
-  { id: 'PA3_with_accent', name: 'PA3: 3 Thân + Viền + Điểm', icon: '✨', description: 'Như PA2 + xen kẽ viên điểm hoa văn', requiresPaint: true, heightCm: 120 },
-  { id: 'PA4_half_wall', name: 'PA4: Ốp Lửng 1.2m', icon: '📏', description: 'Ốp đến 1.2m, phần trên sơn nước', requiresPaint: true, heightCm: 120 },
+  { id: 'PA1_full_height', name: 'PA1: Ốp Kịch Trần', icon: '🏛️', description: 'Full 4 vách + góc khuất, từ sàn lên trần', requiresPaint: false },
+  { id: 'PA2_half_wall_120', name: 'PA2: Ốp Lửng 1.2m', icon: '📏', description: 'Ốp từ sàn lên 1.2m, phần trên sơn nước', requiresPaint: true, heightCm: 120 },
+  { id: 'PA3_half_wall_border', name: 'PA3: Ốp 1.2m + Viền', icon: '📐', description: 'Ốp 1.2m + 1 hàng viền (~1.5m), trên sơn', requiresPaint: true, heightCm: 150 },
+  { id: 'PA4_with_accent', name: 'PA4: Ốp Điểm Nhấn', icon: '✨', description: 'Ốp lửng + xen kẽ gạch hoa văn điểm nhấn', requiresPaint: true, heightCm: 120 },
   { id: 'PA5_wainscoting', name: 'PA5: Wainscoting 80cm', icon: '🎩', description: 'Kiểu cổ điển 80cm + sơn nước', requiresPaint: true, heightCm: 80 },
-  { id: 'PA6_accent_wall', name: 'PA6: Tường Điểm Nhấn', icon: '🎯', description: 'Chỉ ốp 1 bức tường, còn lại sơn', requiresPaint: true },
-  { id: 'PA7_staggered', name: 'PA7: Ốp So Le', icon: '🧱', description: 'Ốp kịch trần kiểu gạch xây', requiresPaint: false },
+  { id: 'PA6_accent_wall', name: 'PA6: Tường Điểm Nhấn', icon: '🎯', description: 'Chỉ ốp 1 bức tường chính, còn lại sơn', requiresPaint: true },
 ];
 
 const App: React.FC = () => {
@@ -411,6 +410,7 @@ const App: React.FC = () => {
               </div>
             )}
           </div>
+          <div className="px-4 py-2 text-right text-[7px] text-slate-600 uppercase tracking-widest">v1.0.1</div>
         </aside>
 
         <section className="flex-1 flex flex-col p-4 relative bg-[#020617]">

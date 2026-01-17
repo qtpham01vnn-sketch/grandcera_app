@@ -1,19 +1,44 @@
+# Hệ thống Xác thực & Phê duyệt (Auth System) - V12.2
 
-# Hệ thống Xác thực & Phê duyệt
+## 1. Nguyên lý Duyệt khách (Approval Engine)
+Ứng dụng sử dụng mô hình xác thực "Bán đóng" (Semi-Closed) để bảo vệ tài nguyên AI (Gemini/Flux) chỉ dành cho khách hàng thực sự của Showroom.
 
-## 1. Phân quyền (RBAC)
-- **Admin (qtpham01vnn@gmail.com):** Toàn quyền hệ thống, quản lý danh sách khách hàng.
-- **Khách hàng (Guest):** Có quyền cấu hình và diễn họa nhưng phải qua bước duyệt.
+### Luồng xử lý:
+1.  **Đăng ký/Đăng nhập:** Người dùng nhập Email -> `firebase.auth().signInWithEmailLink()`.
+2.  **Trạng thái Chờ:** Sau khi vào, hệ thống kiểm tra Document của người dùng trên Firestore (`users/{email}`).
+    - Nếu `status === 'pending'`: Hiển thị màn hình chờ phê duyệt.
+    - Nếu `status === 'approved'`: Mở cửa vào Studio chính.
+3.  **Hành động của Admin:** Admin truy cập Tab "DUYỆT", nhấn nút "Duyệt". Lệnh này thực hiện `updateDoc(userRef, { status: 'approved' })`.
+4.  **Phản hồi tức thì:** Nhờ hàm `onSnapshot()`, máy tính của khách hàng sẽ nhận được thay đổi trạng thái ngay lập tức và tự chuyển trang mà không cần F5.
 
-## 2. Quy trình Phê duyệt (Approval Flow)
-1. Khách hàng đăng nhập bằng Email.
-2. Hệ thống tạo Profile `pending`.
-3. Admin nhận thông báo trong Tab **Duyệt**.
-4. Admin nhấn "Duyệt" -> Trạng thái đổi thành `approved`.
+## 2. Cấu trúc dữ liệu Firebase (Firestore Schema)
 
-## 3. Cơ chế Real-time (Firebase)
-Hệ thống sử dụng **Firestore OnSnapshot**. Khi Admin vừa nhấn duyệt trên máy của mình, Snapshot trên máy Khách hàng sẽ nhận tín hiệu ngay lập tức (không trễ) để mở cửa Studio.
+### Collection `users`
+```json
+{
+  "email": "khachhang@gmail.com",
+  "status": "approved", // hoặc 'pending'
+  "role": "guest",      // hoặc 'admin'
+  "createdAt": "timestamp"
+}
+```
 
-## 4. Dữ liệu Đám mây
-- Profile người dùng được lưu trữ an toàn trên Google Cloud.
-- Lịch sử thiết kế được gắn định danh (UID) để đồng bộ trên mọi thiết bị khi đăng nhập cùng Email.
+### Collection `designs` (Lịch sử bản phối)
+```json
+{
+  "userId": "XYZ",
+  "baseImage": "url_hoac_base64",
+  "renderedImage": "url_ai_render",
+  "config": {
+    "floor": "ID_Gach",
+    "dark": "ID_Gach",
+    "light": "ID_Gach",
+    "paint": "ID_Son",
+    "method": "PA2"
+  },
+  "timestamp": "serverTimestamp"
+}
+```
+
+## 3. Vai trò Admin tối thượng
+Mã định danh `qtpham01vnn@gmail.com` được mã hóa cứng làm Admin. Chỉ Admin mới có quyền thấy Tab "DUYỆT" và thực hiện các thay đổi trạng thái người dùng.

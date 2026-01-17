@@ -1,7 +1,15 @@
 
 # Nhật ký Cập nhật Grandcera AI
 
-## Phiên bản Hiện tại: V12.1 (Tháng 1/2026)
+## Phiên bản Hiện tại: V12.2 (Tháng 1/2026)
+
+### V12.2 - "GitHub Sync & Vercel Deployment"
+- Khởi tạo hệ thống quản lý phiên bản Git cho toàn bộ dự án.
+- Kết nối thành công với GitHub Repository (`grandcera_app`).
+- Triển khai ứng dụng lên môi trường Production (Vercel).
+- Thiết lập quy trình CI/CD tự động cập nhật khi có thay đổi code.
+
+## Phiên bản: V12.1 (Tháng 1/2026)
 
 ### V12.1 - "Firebase Cloud & Robust AI Orchestration"
 - Tích hợp **Firebase Authentication** và **Cloud Firestore** cho toàn bộ hệ thống.

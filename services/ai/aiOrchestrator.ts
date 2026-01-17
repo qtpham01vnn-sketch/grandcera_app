@@ -15,25 +15,22 @@ const getTilingPrompt = (method: TilingMethod, paint?: PaintData | null): string
 
     switch (method) {
         case 'PA1_full_height':
-            return `PHƯƠNG ÁN 1: ỐP KỊCH TRẦN (Full Height). Ốp gạch 100% từ SÀN lên đến TRẦN nhà. KHÔNG có phần sơn nước. Toàn bộ vách tường phủ kín gạch.`;
+            return `PHƯƠNG ÁN 1: ỐP KỊCH TRẦN (Full Height). Ốp gạch 100% từ SÀN lên đến TRẦN nhà trên tất cả 4 VÁCH TƯỜNG và CÁC GÓC KHUẤT. KHÔNG có phần sơn nước. Toàn bộ tường gạch thô phải được phủ kín hoàn toàn.`;
 
-        case 'PA2_standard_3_1':
-            return `PHƯƠNG ÁN 2: 3 THÂN + 1 VIỀN. CHÂN TƯỜNG (0 - 90cm): Ốp 3 hàng gạch THÂN ĐẬM. VIỀN (90 - 120cm): Ốp 1 hàng gạch VIỀN trang trí. PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
+        case 'PA2_half_wall_120':
+            return `PHƯƠNG ÁN 2: ỐP LỬNG 1.2M. CHÂN TƯỜNG (0 - 120cm): Ốp 4 hàng gạch ĐẬM màu. PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex}). Đường phân cách ốp-sơn ở độ cao 1.2 mét.`;
 
-        case 'PA3_with_accent':
-            return `PHƯƠNG ÁN 3: 3 THÂN + VIỀN + ĐIỂM. CHÂN TƯỜNG (0 - 90cm): Ốp gạch THÂN ĐẬM, XEN KẼ viên ĐIỂM hoa văn. VIỀN (90 - 120cm): Ốp 1 hàng gạch VIỀN trang trí. PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
+        case 'PA3_half_wall_border':
+            return `PHƯƠNG ÁN 3: ỐP 1.2M + VIỀN (~1.5M). CHÂN TƯỜNG (0 - 120cm): Ốp gạch THÂN ĐẬM. VIỀN (120 - 150cm): Ốp 1 hàng gạch VIỀN trang trí khác màu. PHẦN TRÊN (>150cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
 
-        case 'PA4_half_wall':
-            return `PHƯƠNG ÁN 4: ỐP LỬNG 1.2M. CHÂN TƯỜNG (0 - 120cm): Ốp 4 hàng gạch. PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
+        case 'PA4_with_accent':
+            return `PHƯƠNG ÁN 4: ỐP CÓ GẠCH ĐIỂM NHẤN. CHÂN TƯỜNG (0 - 120cm): Ốp gạch THÂN ĐẬM, XEN KẼ viên gạch ĐIỂM hoa văn để tạo focal point. PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
 
         case 'PA5_wainscoting':
-            return `PHƯƠNG ÁN 5: WAINSCOTING (Cổ điển 80cm). CHÂN TƯỜNG (0 - 80cm): Ốp 2-3 hàng gạch có chỉ phào trang trí ở viền trên. PHẦN TRÊN (>80cm): SƠN NƯỚC màu ${paintName} (${paintHex}).`;
+            return `PHƯƠNG ÁN 5: WAINSCOTING (Cổ điển 80cm). CHÂN TƯỜNG (0 - 80cm): Ốp 2-3 hàng gạch có chỉ phào trang trí ở viền trên. PHẦN TRÊN (>80cm): SƠN NƯỚC màu ${paintName} (${paintHex}). Phong cách tân cổ điển.`;
 
         case 'PA6_accent_wall':
-            return `PHƯƠNG ÁN 6: TƯỜNG ĐIỂM NHẤN. CHỈ ỐP 1 BỨC TƯỜNG làm điểm nhấn (kịch trần). CÁC VÁCH KHÁC: SƠN NƯỚC màu ${paintName} (${paintHex}).`;
-
-        case 'PA7_staggered':
-            return `PHƯƠNG ÁN 7: ỐP SO LE. Ốp gạch 100% từ SÀN lên TRẦN. Xếp viên SO LE 1/2 viên (kiểu gạch xây).`;
+            return `PHƯƠNG ÁN 6: TƯỜNG ĐIỂM NHẤN. CHỈ ỐP 1 BỨC TƯỜNG CHÍNH làm điểm nhấn (kịch trần). CÁC VÁCH KHÁC: SƠN NƯỚC màu ${paintName} (${paintHex}).`;
 
         default:
             return `Ốp theo phương án đã chọn.`;

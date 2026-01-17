@@ -62,34 +62,34 @@ const getTilingPrompt = (method: TilingMethod, paint?: PaintData | null): string
     case 'PA1_full_height':
       return `
 📐 PHƯƠNG ÁN 1: ỐP KỊCH TRẦN (Full Height)
-- Ốp gạch 100% từ SÀN lên đến TRẦN nhà
+- Ốp gạch 100% từ SÀN lên đến TRẦN nhà trên tất cả 4 VÁCH TƯỜNG
+- Phủ kín hoàn toàn các GÓC KHUẤT và vách tường cầu thang
 - KHÔNG có phần sơn nước
-- Toàn bộ vách tường phủ kín gạch
 - Phù hợp: Phòng tắm, nhà bếp, spa`;
 
-    case 'PA2_standard_3_1':
+    case 'PA2_half_wall_120':
       return `
-📐 PHƯƠNG ÁN 2: 3 THÂN + 1 VIỀN (Standard 3+1)
-- CHÂN TƯỜNG (0 - 90cm): Ốp 3 hàng gạch THÂN ĐẬM
-- VIỀN (90 - 120cm): Ốp 1 hàng gạch VIỀN trang trí
+📐 PHƯƠNG ÁN 2: ỐP LỬNG 1.2M
+- CHÂN TƯỜNG (0 - 120cm): Ốp 4 hàng gạch ĐẬM màu
 - PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex})
+- Đường phân cách ốp-sơn ở độ cao 1.2 mét
+- Phù hợp: Nhà vệ sinh, khu dịch vụ`;
+
+    case 'PA3_half_wall_border':
+      return `
+📐 PHƯƠNG ÁN 3: ỐP 1.2M + VIỀN (~1.5M)
+- CHÂN TƯỜNG (0 - 120cm): Ốp gạch THÂN ĐẬM
+- VIỀN (120 - 150cm): Ốp 1 hàng gạch VIỀN trang trí khác màu
+- PHẦN TRÊN (>150cm): SƠN NƯỚC màu ${paintName} (${paintHex})
 - Phù hợp: Phòng khách, hành lang, cầu thang`;
 
-    case 'PA3_with_accent':
+    case 'PA4_with_accent':
       return `
-📐 PHƯƠNG ÁN 3: 3 THÂN + VIỀN + ĐIỂM (Premium)
-- CHÂN TƯỜNG (0 - 90cm): Ốp gạch THÂN ĐẬM, XEN KẼ viên ĐIỂM hoa văn (pattern 5-1)
-- VIỀN (90 - 120cm): Ốp 1 hàng gạch VIỀN trang trí
+📐 PHƯƠNG ÁN 4: ỐP CÓ GẠCH ĐIỂM NHẤN
+- CHÂN TƯỜNG (0 - 120cm): Ốp gạch THÂN ĐẬM, XEN KẼ viên gạch ĐIỂM hoa văn
+- Viên ĐIỂM tạo focal point ngang tầm mắt
 - PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex})
-- Viên ĐIỂM tạo focal point ngang tầm mắt`;
-
-    case 'PA4_half_wall':
-      return `
-📐 PHƯƠNG ÁN 4: ỐP LỬNG 1.2M (Half-Wall)
-- CHÂN TƯỜNG (0 - 120cm): Ốp 4 hàng gạch
-- PHẦN TRÊN (>120cm): SƠN NƯỚC màu ${paintName} (${paintHex})
-- Kiểu dáng đơn giản, tiết kiệm chi phí
-- Phù hợp: Nhà vệ sinh chung, khu dịch vụ`;
+- Phù hợp: Phòng khách, phòng ăn cao cấp`;
 
     case 'PA5_wainscoting':
       return `
@@ -102,19 +102,10 @@ const getTilingPrompt = (method: TilingMethod, paint?: PaintData | null): string
     case 'PA6_accent_wall':
       return `
 📐 PHƯƠNG ÁN 6: TƯỜNG ĐIỂM NHẤN (Accent Wall)
-- CHỈ ỐP 1 BỨC TƯỜNG làm điểm nhấn (kịch trần)
+- CHỈ ỐP 1 BỨC TƯỜNG CHÍNH làm điểm nhấn (kịch trần)
 - CÁC VÁCH KHÁC: SƠN NƯỚC màu ${paintName} (${paintHex})
 - Tạo focal point cho không gian
 - Phù hợp: Phòng ngủ, phòng khách hiện đại`;
-
-    case 'PA7_staggered':
-      return `
-📐 PHƯƠNG ÁN 7: ỐP SO LE (Staggered/Brick Pattern)
-- Ốp gạch 100% từ SÀN lên TRẦN
-- Xếp viên SO LE 1/2 viên (kiểu gạch xây)
-- Tạo hiệu ứng chiều sâu và chuyển động
-- KHÔNG có sơn nước
-- Phù hợp: Tường sau kệ TV, vách cầu thang`;
 
     default:
       return `Ốp theo phương án đã chọn.`;
@@ -142,7 +133,7 @@ Nếu khách gửi ảnh mẫu gạch, hãy hỏi 6 câu hỏi để lưu vào k
 6. Tên/Mã gạch muốn đặt?
 
 NHIỆM VỤ KHÁC:
-- Nếu khách gửi ảnh phòng: Nhận xét và đề xuất phương án ốp lát phù hợp từ 7 PA.
+- Nếu khách gửi ảnh phòng: Nhận xét và đề xuất phương án ốp lát phù hợp từ 6 PA.
 - Sử dụng Google Search tìm mã gạch trên pnc.net.vn khi cần.`;
 
   const parts: any[] = [{ text: message }];
@@ -170,7 +161,7 @@ NHIỆM VỤ KHÁC:
 };
 
 // ============================================
-// HÀM RENDER DIỄN HỌA - 7 PHƯƠNG ÁN
+// HÀM RENDER DIỄN HỌA - 6 PHƯƠNG ÁN
 // ============================================
 export const renderVisual = async (
   floor: TileData,

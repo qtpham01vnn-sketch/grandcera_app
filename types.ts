@@ -1,15 +1,14 @@
 
 export type TileType = 'floor' | 'wall';
 export type DetailedTileType = 'dark' | 'light' | 'accent' | 'border';
-// 7 Phương án ốp lát
+// 6 Phương án ốp lát
 export type TilingMethod =
-  | 'PA1_full_height'      // Ốp kịch trần - 100% gạch
-  | 'PA2_standard_3_1'     // 3 Thân + 1 Viền + Sơn
-  | 'PA3_with_accent'      // 3 Thân + 1 Viền + Điểm + Sơn
-  | 'PA4_half_wall'        // Ốp lửng 1.2m + Sơn
+  | 'PA1_full_height'      // Ốp kịch trần - Full 4 vách + góc khuất
+  | 'PA2_half_wall_120'    // Ốp lửng 1.2m + Sơn
+  | 'PA3_half_wall_border' // Ốp 1.2m + Viền (~1.5m) + Sơn
+  | 'PA4_with_accent'      // Ốp có gạch điểm nhấn + Sơn
   | 'PA5_wainscoting'      // Wainscoting 80cm + Sơn
-  | 'PA6_accent_wall'      // Tường điểm nhấn + Sơn
-  | 'PA7_staggered';       // Ốp so le kịch trần
+  | 'PA6_accent_wall';     // Tường điểm nhấn (1 bức) + Sơn
 
 // Thông tin mô tả từng phương án
 export interface TilingMethodInfo {

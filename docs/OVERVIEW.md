@@ -1,16 +1,20 @@
+# Tổng Quan Dự Án GRANDCERA
 
-# GRANDCERA - PHƯƠNG NAM STUDIO AI
+## 1. Tầm Nhìn & Sứ Mệnh
+**GRANDCERA - PHƯƠNG NAM STUDIO** là ứng dụng tiên phong trong việc ứng dụng Trí tuệ Nhân tạo (AI) vào lĩnh vực showroom gạch men và sơn nước. Ứng dụng giúp khách hàng hình dung trực quan không gian sống tương lai của mình chỉ từ một bức ảnh chụp hiện trạng nhà thô.
 
-## 1. Tầm nhìn dự án
-Grandcera được xây dựng để trở thành trợ lý AI hàng đầu cho Showroom Phương Nam Studio, xóa bỏ khoảng cách giữa vật liệu thô và không gian sống hoàn thiện. Ứng dụng giúp nhân viên showroom tư vấn khách hàng "mắt thấy tai nghe" các bản phối gạch ngay tại chỗ.
+## 2. Mục Tiêu Chiến Lược
+- **Tốc độ:** Diễn họa phối cảnh gạch trong vòng dưới 30 giây.
+- **Độ chính xác:** Giữ nguyên 100% kiến trúc thực tế (cầu thang, vách tường, cửa sổ).
+- **Dễ dùng:** Khách hàng không cần biết thuật ngữ kiến trúc vẫn có thể tạo ra bản phối chuyên nghiệp.
+- **Đồng bộ:** Dữ liệu Cloud giúp kết nối giữa tư vấn viên và chủ nhà mọi lúc mọi nơi.
 
-## 2. Giá trị cốt lõi
-- **Chính xác (Material Fidelity):** AI tôn trọng 100% mẫu gạch thực tế khách hàng đã chọn.
-- **Tốc độ (Instant Rendering):** Diễn họa phối cảnh 4K chỉ trong chưa đầy 30 giây.
-- **Tư vấn thông minh (Hybrid AI):** Kết hợp trí tuệ nhân tạo chat và diễn họa hình ảnh.
+## 3. Đối Tượng Sử Dụng
+- **Khách hàng lẻ:** Tự tạo phương án ốp lát và chọn màu sơn phù hợp cá tính.
+- **Tư vấn viên (Showroom):** Công cụ hỗ trợ chốt đơn gạch nhanh chóng qua hình ảnh trực quan.
+- **Admin (Quản trị):** Quản lý khách hàng và danh sách thiết kế tiềm năng.
 
-## 3. Quy trình vận hành
-- **Bước 1:** Đăng nhập và được Admin (Anh Tuấn) phê duyệt.
-- **Bước 2:** Tải ảnh hiện trạng công trình.
-- **Bước 3:** Chọn bộ phối vật liệu (Gạch sàn, Gạch đậm, Gạch nhạt, Sơn tường).
-- **Bước 4:** Diễn họa và Lưu kết quả tư vấn cho khách hàng.
+## 4. Điểm Khác Biệt (USP)
+- **AI Orchestrator:** Công nghệ dự phòng đa tầng, không bao giờ lỗi render.
+- **7 Phương án ốp lát chuẩn kiến trúc:** Bao phủ toàn bộ các nhu cầu thực tế của nhà dân dụng tại Việt Nam.
+- **Mệnh lệnh vách tường cầu thang:** Thuật toán AI ép phủ kín các góc khuất kiến trúc phức tạp nhất.
