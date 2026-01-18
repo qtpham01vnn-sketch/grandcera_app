@@ -1,31 +1,74 @@
-# Logic AI & Chiến lược Diễn họa (AI Logic) - V12.3
+# Logic AI & Chiến lược Diễn họa (AI Logic) - V12.8
 
-## 1. Hệ thống AI Orchestrator (Đa tầng)
-Đây là "bộ não" điều khiển toàn bộ quá trình render, đảm bảo tính ổn định và chính xác.
+## 1. Hệ thống AI Orchestrator (Đa tầng) - V12.8
 
 ### Nguyên lý hoạt động (The Pipeline)
-1.  **Input:** Base Image (Ảnh hiện trạng) + Vật liệu (Tiles/Paint) + Phương án (PA).
-2.  **Giai đoạn 1 - Vision Analysis (Gemini 2.0 Flash):**
-    - Sử dụng **SDK @google/genai** với model `gemini-2.0-flash` để phân tích cấu trúc phòng.
-    - Output: Một đoạn văn mô tả tiếng Anh về vị trí tường, sàn, cầu thang, cửa.
-3.  **Giai đoạn 2 - Prompt Synthesis:**
-    - Kết hợp mô tả bối cảnh từ GĐ1 + Metadata vật liệu + Logic ốp lát của PA đã chọn.
-    - Tạo ra một Prompt cực kỳ chi tiết cho bước diễn họa.
-4.  **Giai đoạn 3 - Rendering (Imagen 3 - Vertex AI):**
-    - **Primary:** Gọi API `imagen-3.0-generate-001` thông qua Secure Proxy. Đây là model tạo ảnh SOTA của Google hiện nay.
-    - **Fallback:** Tự động chuyển sang **Flux (Pollinations.ai)** nếu Vertex AI gặp sự cố (quota/network).
+1.  **Input:** Base Image (Ảnh hiện trạng) + Tile Images (Ảnh mẫu gạch thực tế) + Phương án (PA).
+2.  **Giai đoạn 1 - Multi-Image Packaging:**
+    - Thu thập ảnh gạch từ `TileData.tile_image_url` (Sàn, Tường, Điểm nhấn).
+    - Chuyển đổi sang Base64 bằng helper `imageUrlToBase64()`.
+3.  **Giai đoạn 2 - DNA Lock Prompt:**
+    - Xây dựng prompt với lệnh "DNA MATERIAL LOCK" - ép AI sử dụng 100% texture từ ảnh mẫu.
+    - Gắn LABEL rõ ràng cho mỗi ảnh: `[ẢNH MẪU SÀN - DNA CHUẨN]:`, `[ẢNH MẪU TƯỜNG - DNA CHUẨN]:`
+4.  **Giai đoạn 3 - Rendering (Gemini 2.5 Flash Image):**
+    - **Primary:** Model `gemini-2.5-flash-image` với `imageConfig: { aspectRatio: "16:9" }`.
+    - **Fallback 1:** Imagen 3 (Vertex AI) - Text-to-Image.
+    - **Fallback 2:** Flux (Pollinations.ai).
 
-## 2. Quy tắc "Khóa Kiến trúc" (Structural Integrity)
-Để giải quyết vấn đề AI tự ý thay đổi khung nhà, chúng tôi áp dụng 3 lớp bảo vệ:
-- **Lớp 1 (Vision Context):** Ép AI Render phải đọc mô tả về căn phòng hiện hữu trước khi vẽ.
-- **Lớp 2 (Strict Prompt):** Sử dụng các từ khóa mạnh (`STRICT MANDATE`, `DO NOT CHANGE geometry`, `KEEP staircase`).
-- **Lớp 3 (Construction Mode):** Khi Gemini không nhìn thấy ảnh (lỗi Vision), hệ thống sẽ gửi mặc định mô tả "Nhà thô, tường gạch bê tông" để AI bám sát hiện trạng công trình đang thi công.
+### So sánh V12.4 vs V12.8:
+| Tính năng | V12.4 (Imagen 3) | V12.8 (Gemini 2.5 Flash Image) |
+|-----------|------------------|--------------------------------|
+| Loại model | Text-to-Image | Image-to-Image + Reference |
+| Nhận ảnh gạch | ❌ Chỉ đọc mô tả chữ | ✅ Nhận trực tiếp ảnh mẫu |
+| Kết quả gạch | Tự tưởng tượng texture | Sao chép 100% từ mẫu |
+| Multi-image | ❌ Không hỗ trợ | ✅ Lên đến 14 ảnh |
 
-## 3. Logic "Mệnh lệnh vách tường cầu thang"
-- **Vị trí:** Vách tường bên phải hoặc phía dưới chân cầu thang thường bị AI bỏ qua.
-- **Giải pháp:** Trong mọi Prompt luôn có lệnh phủ kín 100% diện tích này, quét sạch mọi hốc tường xây dở để gạch được ốp liền mạch.
+## 2. DNA Material Lock (Khóa Vật liệu DNA)
+Đây là cơ chế **quan trọng nhất** trong V12.8 để đảm bảo mẫu gạch render đúng với mẫu khách chọn.
 
-## 4. Đặc điểm Vật liệu (Tile Surface Logic)
-- **Glossy (Bóng):** AI được lệnh tạo phản chiếu ánh sáng mạnh (Reflections).
-- **Matt (Mờ):** AI giảm độ chói, tập trung vào chiều sâu vân đá.
-- **8K Resolution:** Ép AI tạo textures cực kỳ sắc nét để nhìn rõ từng đường ron gạch.
+### Prompt Template:
+```
+LỆNH DIỄN HỌA KIẾN TRÚC TỐI CAO - GRANDCERA STUDIO:
+
+1. DNA MATERIAL LOCK (KHÓA VẬT LIỆU):
+   - Tuyệt đối KHÔNG ĐƯỢC tự ý sáng tạo vân gạch.
+   - Bạn PHẢI trích xuất 100% vân và màu sắc từ [ẢNH MẪU SÀN] và [ẢNH MẪU TƯỜNG].
+   - Kết quả render phải có màu sắc và hoa văn gạch giống hệt như ảnh mẫu.
+
+2. STAIRCASE OVERDRIVE (PHỦ KÍN VÁCH CẦU THANG):
+   - Phải phủ vật liệu gạch ốp lên toàn bộ diện tích tường gạch đỏ.
+   - KHÔNG ĐƯỢC để hở bất kỳ cm2 gạch đỏ nào.
+
+3. PHƯƠNG ÁN THI CÔNG: [Từ getTilingPrompt()]
+
+4. GIỮ NGUYÊN HIỆN TRẠNG: Giữ nguyên kết cấu cầu thang, cây chống sắt, vị trí cửa sổ.
+```
+
+## 3. Label-Based Image Prompting
+Mỗi ảnh gửi đến AI được gắn nhãn văn bản phía trước:
+- `[ẢNH HIỆN TRẠNG CÔNG TRÌNH]:`
+- `[ẢNH MẪU SÀN - DNA CHUẨN]:`
+- `[ẢNH MẪU TƯỜNG - DNA CHUẨN]:`
+- `[ẢNH MẪU ĐIỂM - DNA CHUẨN]:`
+
+## 4. Spatial Mapping (V12.7)
+Hàm `describeRoomLayout()` phân tích ảnh và trả về mô tả 10 điểm:
+1. Camera Viewpoint
+2. Staircase Position (LEFT/RIGHT/CENTER)
+3. Windows (số lượng, vị trí tường)
+4. Doors
+5. Columns/Pillars
+6. Ceiling
+7. Walls
+8. Floor
+9. Lighting direction
+10. People/Objects
+
+## 5. Fallback Strategy
+```
+Gemini 2.5 Flash Image (Primary)
+         ↓ (nếu lỗi)
+    Imagen 3 (Vertex AI)
+         ↓ (nếu lỗi)
+    Flux (Pollinations.ai)
+```

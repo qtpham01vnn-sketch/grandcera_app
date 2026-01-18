@@ -1,7 +1,21 @@
 
 # Nhật ký Cập nhật Grandcera AI
 
-## Phiên bản Hiện tại: V12.3 (Tháng 1/2026)
+## Phiên bản Hiện tại: V12.8 (Tháng 1/2026)
+
+### V12.8 - "Gemini 2.5 Flash Image & DNA Lock" (19/01/2026)
+- **Chuyển đổi AI Engine:** Từ Imagen 3 (Text-to-Image) sang **Gemini 2.5 Flash Image** (Image-to-Image với Reference).
+- **DNA Material Lock:** Prompt đặc biệt ép AI sử dụng 100% texture từ ảnh mẫu gạch thực tế, không tự ý sáng tạo vân gạch.
+- **Multi-Image Reference:** Gửi đồng thời Ảnh phòng + Ảnh gạch sàn + Ảnh gạch tường + Ảnh gạch điểm vào một request.
+- **Label-Based Prompting:** Mỗi ảnh được gắn nhãn rõ ràng (`[ẢNH MẪU SÀN - DNA CHUẨN]:`) để AI hiểu vai trò.
+- **Image Config:** Sử dụng `imageConfig: { aspectRatio: "16:9" }` thay vì responseModalities.
+- **Helper imageUrlToBase64:** Tự động chuyển đổi URL ảnh gạch từ TileData sang Base64.
+
+### V12.7 - "Enhanced Spatial Mapping Prompt" (18/01/2026)
+- **Spatial Description Upgrade:** Nâng cấp `describeRoomLayout()` để mô tả chi tiết vị trí LEFT/RIGHT/CENTER.
+- **10-Point Analysis:** Camera viewpoint, Staircase position, Windows, Doors, Columns, Ceiling, Walls, Floor, Lighting, Objects.
+- **Mandatory Constraints:** Thêm các ràng buộc bắt buộc để giữ nguyên vị trí cầu thang, cửa sổ.
+- **Negative Prompt:** Liệt kê rõ các thứ AI KHÔNG ĐƯỢC làm.
 
 ### V12.6 - "Smart Workflow & History" (18/01/2026)
 - **Structured Technical Prompt:** Nâng cấp AI Orchestrator với logic mô tả hình học 3D và Negative Prompt bảo vệ cấu trúc.

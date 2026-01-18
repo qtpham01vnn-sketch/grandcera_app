@@ -1,4 +1,4 @@
-# Lộ Trình Phát triển (Roadmap) - V12.5
+# Lộ Trình Phát triển (Roadmap) - V12.8
 
 ## ✅ GIAI ĐOẠN 1: NỀN TẢNG (Hoàn thành - Tháng 1/2026)
 - [x] **V12.0:** Triển khai 7 Phương án ốp lát (PA1-PA7) và Validation màu sơn.
@@ -8,6 +8,8 @@
 - [x] **V12.4:** Tích hợp Imagen 3 (Vertex AI) cho chất lượng render Photorealistic 8K.
 - [x] **V12.5:** Vercel Production Deployment với Environment Variables cho Imagen 3.
 - [x] **V12.6:** Nâng cấp Prompt Kỹ thuật, Smart Chat Lưu Gạch, và History Slider.
+- [x] **V12.7:** Enhanced Spatial Mapping Prompt - Mô tả chi tiết vị trí LEFT/RIGHT/CENTER cho cầu thang, cửa sổ.
+- [x] **V12.8:** Gemini 2.5 Flash Image với DNA Lock - Multi-Image Reference (Ảnh phòng + Ảnh mẫu gạch).
 
 ---
 
