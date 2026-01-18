@@ -1,4 +1,4 @@
-# Lộ Trình Phát triển (Roadmap) - V12.4
+# Lộ Trình Phát triển (Roadmap) - V12.5
 
 ## ✅ GIAI ĐOẠN 1: NỀN TẢNG (Hoàn thành - Tháng 1/2026)
 - [x] **V12.0:** Triển khai 7 Phương án ốp lát (PA1-PA7) và Validation màu sơn.
@@ -6,6 +6,7 @@
 - [x] **V12.2:** AI Orchestrator dự phòng đa tầng và Triển khai GitHub/Vercel CI/CD.
 - [x] **V12.3:** Gemini SDK Migration, Google Cloud Billing, cập nhật Pollinations endpoint mới.
 - [x] **V12.4:** Tích hợp Imagen 3 (Vertex AI) cho chất lượng render Photorealistic 8K.
+- [x] **V12.5:** Vercel Production Deployment với Environment Variables cho Imagen 3.
 
 ---
 

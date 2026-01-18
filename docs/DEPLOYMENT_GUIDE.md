@@ -22,6 +22,12 @@ Dự án được Host tại: `grandcera-app.vercel.app` (Hoặc tên domain tư
 | `VITE_FIREBASE_AUTH_DOMAIN` | Tên miền xác thực Firebase. |
 | `VITE_FIREBASE_PROJECT_ID` | ID dự án Google Cloud. |
 | `VITE_FIREBASE_APP_ID` | ID định danh của ứng dụng. |
+| `GOOGLE_CREDENTIALS` | **Service Account Key JSON** (toàn bộ nội dung file `service-account.json`) cho Imagen 3 API. |
+
+> **Lưu ý quan trọng về `GOOGLE_CREDENTIALS`:**
+> - Copy **toàn bộ** nội dung file `service-account.json` (từ `{` đến `}`).
+> - Chọn áp dụng cho cả 3 môi trường: **Production**, **Preview**, **Development**.
+> - File `service-account.json` **KHÔNG** được push lên GitHub (đã có trong `.gitignore`).
 
 ### Cơ chế Auto-Deploy
 Mỗi khi anh thực hiện lệnh `git push` lên GitHub, Vercel sẽ tự động:

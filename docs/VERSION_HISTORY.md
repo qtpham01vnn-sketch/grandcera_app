@@ -3,6 +3,12 @@
 
 ## Phiên bản Hiện tại: V12.3 (Tháng 1/2026)
 
+### V12.5 - "Vercel Production Deployment" (18/01/2026)
+- **Environment Variables**: Cấu hình `GOOGLE_CREDENTIALS` trên Vercel để bảo mật Service Account Key.
+- **Production Ready**: Imagen 3 hoạt động ổn định trên cả Local và Production.
+- **Backend Flexibility**: Code tự động detect credentials từ Env Var hoặc File.
+- **Deployment Success**: Website chính thức chạy Imagen 3 với chất lượng Photorealistic.
+
 ### V12.4 - "Imagen 3 Integration (Vertex AI)" (18/01/2026)
 - **Tích hợp Imagen 3 (Google Vertex AI):** Thay thế Gemini Image Gen (chưa hỗ trợ) bằng model chuyên dụng `imagen-3.0-generate-001`.
 - **Backend API Proxy:** Xây dựng cơ chế Serverless Function & Local Proxy để bảo mật Service Account Key.
