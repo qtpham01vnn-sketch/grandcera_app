@@ -3,6 +3,13 @@
 
 ## Phiên bản Hiện tại: V12.3 (Tháng 1/2026)
 
+### V12.4 - "Imagen 3 Integration (Vertex AI)" (18/01/2026)
+- **Tích hợp Imagen 3 (Google Vertex AI):** Thay thế Gemini Image Gen (chưa hỗ trợ) bằng model chuyên dụng `imagen-3.0-generate-001`.
+- **Backend API Proxy:** Xây dựng cơ chế Serverless Function & Local Proxy để bảo mật Service Account Key.
+- **Smart Key Detection:** Tự động tìm kiếm file key `service-account.json` ở cả thư mục gốc và thư mục cha.
+- **AI Pipeline v2:** Luồng xử lý mới: Gemini 2.0 Flash (Phân tích) → Imagen 3 (Render) → Flux (Fallback).
+- **Aspect Ratio 4:3:** Chuẩn hóa tỷ lệ khung hình đầu ra.
+
 ### V12.3 - "Gemini SDK Migration & Pollinations Update" (17/01/2026)
 - Chuyển đổi từ **REST API fetch** sang **SDK @google/genai** để gọi Gemini API ổn định hơn.
 - Sử dụng model **gemini-2.0-flash** (mới nhất của Google AI).

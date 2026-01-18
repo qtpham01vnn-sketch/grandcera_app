@@ -2,6 +2,7 @@
 import { TileData, TilingMethod, PaintData } from "../../types";
 import { analyzeTileFromImage, getAIChatResponse, describeRoomLayout, renderWithGemini } from "./providers/geminiProvider";
 import { renderWithFlux } from "./providers/fluxProvider";
+import { renderWithImagen } from "./providers/imagenProvider";
 
 // Xuất lại các hàm tư vấn từ Gemini
 export { analyzeTileFromImage, getAIChatResponse, describeRoomLayout };
@@ -90,12 +91,17 @@ STYLE: Ultra-realistic architecture photography, 8K resolution, sharp tiling tex
         - PHƯƠNG ÁN: ${tilingLogic}
         - QUY ĐỊNH: GIỮ NGUYÊN KIẾN TRÚC NHÀ, chỉ thay đổi mảng gạch và sơn.`;
 
-        // BƯỚC B: THỬ RENDER VỚI GEMINI
-        console.log("🚀 Đang thử Render với Gemini...");
-        return await renderWithGemini(vietnamesePrompt, baseImage, chatImageRefs);
+        // BƯỚC B: THỬ RENDER VỚI IMAGEN 3 (VERTEX AI)
+        console.log("🚀 Đang thử Render với Imagen 3 (Vertex AI)...");
+        try {
+            return await renderWithImagen(fluxPrompt);
+        } catch (imagenError: any) {
+            console.warn("⚠️ Imagen 3 gặp sự cố, chuyển sang Flux!", imagenError?.message);
+            throw imagenError;
+        }
 
     } catch (error: any) {
-        console.warn("⚠️ CẢNH BÁO: Gemini gặp sự cố (Có thể do API Key), chuyển sang Flux!", error?.message);
+        console.warn("⚠️ CẢNH BÁO: AI chính gặp sự cố, chuyển sang Flux!", error?.message);
 
         // BƯỚC C: HỆ THỐNG DỰ PHÒNG FLUX (Luôn chạy nếu Gemini lỗi)
         console.log("🔥 Đang kích hoạt hệ thống dự phòng Flux...");

@@ -11,9 +11,9 @@
 3.  **Giai đoạn 2 - Prompt Synthesis:**
     - Kết hợp mô tả bối cảnh từ GĐ1 + Metadata vật liệu + Logic ốp lát của PA đã chọn.
     - Tạo ra một Prompt cực kỳ chi tiết cho bước diễn họa.
-4.  **Giai đoạn 3 - Rendering:**
-    - Thử nghiệm Render bằng Gemini (để lấy độ chi tiết cao nhất).
-    - **Fallback:** Tự động chuyển sang **Flux (Pollinations.ai)** endpoint mới `pollinations.ai/p/` nếu Gemini lỗi.
+4.  **Giai đoạn 3 - Rendering (Imagen 3 - Vertex AI):**
+    - **Primary:** Gọi API `imagen-3.0-generate-001` thông qua Secure Proxy. Đây là model tạo ảnh SOTA của Google hiện nay.
+    - **Fallback:** Tự động chuyển sang **Flux (Pollinations.ai)** nếu Vertex AI gặp sự cố (quota/network).
 
 ## 2. Quy tắc "Khóa Kiến trúc" (Structural Integrity)
 Để giải quyết vấn đề AI tự ý thay đổi khung nhà, chúng tôi áp dụng 3 lớp bảo vệ:

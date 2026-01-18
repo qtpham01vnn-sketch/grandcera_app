@@ -1,10 +1,11 @@
-# Lộ Trình Phát triển (Roadmap) - V12.3
+# Lộ Trình Phát triển (Roadmap) - V12.4
 
 ## ✅ GIAI ĐOẠN 1: NỀN TẢNG (Hoàn thành - Tháng 1/2026)
 - [x] **V12.0:** Triển khai 7 Phương án ốp lát (PA1-PA7) và Validation màu sơn.
 - [x] **V12.1:** Tích hợp Firebase Cloud Sync (Lưu lịch sử bản phối, Duyệt khách thời gian thực).
 - [x] **V12.2:** AI Orchestrator dự phòng đa tầng và Triển khai GitHub/Vercel CI/CD.
 - [x] **V12.3:** Gemini SDK Migration, Google Cloud Billing, cập nhật Pollinations endpoint mới.
+- [x] **V12.4:** Tích hợp Imagen 3 (Vertex AI) cho chất lượng render Photorealistic 8K.
 
 ---
 
