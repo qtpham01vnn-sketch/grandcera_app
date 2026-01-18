@@ -12,15 +12,40 @@ export default async function handler(req, res) {
     try {
         const { prompt, aspectRatio = "4:3" } = req.body;
 
-        // 1. Đọc Service Account Key từ file
-        const keyPath = path.join(process.cwd(), 'service-account.json');
-        if (!fs.existsSync(keyPath)) {
-            throw new Error('Service Account Key not found. Please upload service-account.json');
+        // 1. Xác định Credentials (Ưu tiên Env Var cho Vercel)
+        let credentials;
+        let projectId;
+
+        if (process.env.GOOGLE_CREDENTIALS) {
+            try {
+                credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+                projectId = credentials.project_id;
+            } catch (e) {
+                console.error("Failed to parse GOOGLE_CREDENTIALS env var", e);
+            }
+        }
+
+        // Nếu không có Env Var, tìm file key (Local Dev)
+        let keyPath;
+        if (!credentials) {
+            keyPath = path.join(process.cwd(), 'service-account.json');
+            // Tự động tìm ở thư mục cha (Local)
+            if (!fs.existsSync(keyPath)) {
+                const parentPath = path.join(process.cwd(), '..', 'service-account.json');
+                if (fs.existsSync(parentPath)) {
+                    keyPath = parentPath;
+                }
+            }
+        }
+
+        if (!credentials && (!keyPath || !fs.existsSync(keyPath))) {
+            throw new Error('Service Account Key not found (Env: GOOGLE_CREDENTIALS or file: service-account.json)');
         }
 
         // 2. Authenticate với Google
         const auth = new GoogleAuth({
-            keyFile: keyPath,
+            credentials, // Dùng object nếu có (từ Env)
+            keyFile: !credentials ? keyPath : undefined, // Dùng file nếu không có Env
             scopes: ['https://www.googleapis.com/auth/cloud-platform'],
         });
 
@@ -28,9 +53,11 @@ export default async function handler(req, res) {
         const accessToken = await client.getAccessToken();
         const token = accessToken.token;
 
-        // Lấy Project ID từ file JSON
-        const keyData = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-        const projectId = keyData.project_id;
+        // Lấy Project ID nếu chưa có
+        if (!projectId && keyPath) {
+            const keyData = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+            projectId = keyData.project_id;
+        }
         const location = 'us-central1'; // Mặc định cho Imagen
 
         // 3. Gọi Imagen 3 API (Vertex AI)
