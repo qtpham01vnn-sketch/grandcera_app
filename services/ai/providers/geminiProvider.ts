@@ -144,10 +144,125 @@ BE PRECISE ABOUT LEFT/RIGHT/CENTER POSITIONS!`;
 };
 
 // ============================================
-// HÀM RENDER GEMINI (FALLBACK SANG FLUX)
+// HÀM RENDER VỚI GEMINI 2.5 FLASH IMAGE (THEO CÔNG THỨC AI STUDIO)
 // ============================================
+
+// Helper chuyển URL/Base64 sang Base64 thuần
+const imageUrlToBase64 = async (url: string): Promise<string> => {
+    if (!url) return "";
+    if (url.startsWith('data:image')) {
+        return url.split(',')[1];
+    }
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                resolve(base64String.split(',')[1]);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error("Lỗi chuyển đổi ảnh:", e);
+        return "";
+    }
+};
+
+export const renderWithGeminiImage = async (
+    tilingMethod: string,          // Phương án ốp (PA1, PA2...)
+    roomImage: string,             // Ảnh phòng gốc (base64)
+    floorTileImage?: string,       // Ảnh mẫu gạch sàn
+    wallTileImage?: string,        // Ảnh mẫu gạch tường
+    accentTileImage?: string       // Ảnh mẫu gạch điểm nhấn
+): Promise<string> => {
+    try {
+        const ai = getAI();
+        console.log("🎨 Calling Gemini 2.5 Flash Image (AI Studio Formula)...");
+
+        // Chuyển đổi ảnh sang Base64 thuần
+        const floorBase64 = floorTileImage ? await imageUrlToBase64(floorTileImage) : "";
+        const wallBase64 = wallTileImage ? await imageUrlToBase64(wallTileImage) : "";
+        const accentBase64 = accentTileImage ? await imageUrlToBase64(accentTileImage) : "";
+
+        // PROMPT DNA LOCK (Theo công thức AI Studio)
+        const prompt = `LỆNH DIỄN HỌA KIẾN TRÚC TỐI CAO - GRANDCERA STUDIO:
+
+1. DNA MATERIAL LOCK (KHÓA VẬT LIỆU):
+   - Tuyệt đối KHÔNG ĐƯỢC tự ý sáng tạo vân gạch.
+   - Bạn PHẢI trích xuất 100% vân và màu sắc từ [ẢNH MẪU SÀN] và [ẢNH MẪU TƯỜNG] tôi gửi kèm.
+   - Kết quả render phải có màu sắc và hoa văn gạch giống hệt như ảnh mẫu.
+
+2. STAIRCASE OVERDRIVE (PHỦ KÍN VÁCH CẦU THANG):
+   - Chú ý mảng tường gạch đỏ XÂY THÔ ở BÊN PHẢI CẦU THANG và PHÍA SAU CỘT.
+   - MỆNH LỆNH: Phải phủ vật liệu gạch ốp lên toàn bộ diện tích tường gạch đỏ này.
+   - KHÔNG ĐƯỢC để hở bất kỳ cm2 gạch đỏ nào.
+
+3. PHƯƠNG ÁN THI CÔNG: ${tilingMethod}
+
+4. GIỮ NGUYÊN HIỆN TRẠNG: Giữ nguyên kết cấu cầu thang, cây chống sắt, vị trí cửa sổ.`;
+
+        // Build parts array với LABEL rõ ràng trước mỗi ảnh
+        const parts: any[] = [
+            { text: prompt },
+            { text: "[ẢNH HIỆN TRẠNG CÔNG TRÌNH]:" },
+            { inlineData: { mimeType: 'image/jpeg', data: roomImage.split(',')[1] || roomImage } },
+        ];
+
+        // Thêm ảnh gạch sàn với label
+        if (floorBase64) {
+            parts.push(
+                { text: "[ẢNH MẪU SÀN - DNA CHUẨN]:" },
+                { inlineData: { mimeType: 'image/jpeg', data: floorBase64 } }
+            );
+        }
+
+        // Thêm ảnh gạch tường với label
+        if (wallBase64) {
+            parts.push(
+                { text: "[ẢNH MẪU TƯỜNG - DNA CHUẨN]:" },
+                { inlineData: { mimeType: 'image/jpeg', data: wallBase64 } }
+            );
+        }
+
+        // Thêm ảnh gạch điểm nhấn với label
+        if (accentBase64) {
+            parts.push(
+                { text: "[ẢNH MẪU ĐIỂM - DNA CHUẨN]:" },
+                { inlineData: { mimeType: 'image/jpeg', data: accentBase64 } }
+            );
+        }
+
+        console.log(`📸 Gửi ${parts.filter(p => p.inlineData).length} ảnh đến Gemini`);
+
+        // Gọi API với config đúng từ AI Studio
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-preview-05-20',
+            contents: { parts },
+            config: {
+                responseModalities: ["Text", "Image"],
+
+            }
+        });
+
+        // Trích xuất ảnh từ response
+        const imgPart = response.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+        if (imgPart?.inlineData?.data) {
+            console.log("✅ Gemini Image generated successfully!");
+            return `data:image/png;base64,${imgPart.inlineData.data}`;
+        }
+
+        throw new Error("Không nhận được ảnh từ Gemini");
+
+    } catch (error: any) {
+        console.error("❌ Gemini Image Generation Error:", error);
+        throw error;
+    }
+};
+
+// Legacy function for compatibility
 export const renderWithGemini = async (prompt: string, baseImage: string, chatImageRefs: string[] = []) => {
-    // Hiện tại Gemini chưa hỗ trợ tạo ảnh trực tiếp qua API này, 
-    // nên ta ném lỗi để Orchestrator tự động chuyển sang Flux.
-    throw new Error("Gemini Image Generation mode is for analysis only. Switching to Flux...");
+    throw new Error("Use renderWithGeminiImage instead for image generation with reference tiles.");
 };
