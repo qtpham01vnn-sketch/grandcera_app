@@ -237,13 +237,12 @@ export const renderWithGeminiImage = async (
 
         console.log(`📸 Gửi ${parts.filter(p => p.inlineData).length} ảnh đến Gemini`);
 
-        // Gọi API với config đúng từ AI Studio
+        // Gọi API với config ĐÚNG từ AI Studio
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-preview-05-20',
+            model: 'gemini-2.5-flash-image',
             contents: { parts },
             config: {
-                responseModalities: ["Text", "Image"],
-
+                imageConfig: { aspectRatio: "16:9" }
             }
         });
 
