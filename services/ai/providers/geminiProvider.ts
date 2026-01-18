@@ -95,11 +95,31 @@ export const getAIChatResponse = async (message: string, imageBase64?: string) =
 };
 
 // ============================================
-// HÀM PHÂN TÍCH BỐI CẢNH PHÒNG (Dành cho Rendering)
+// HÀM PHÂN TÍCH BỐI CẢNH PHÒNG CHI TIẾT (Spatial Mapping)
 // ============================================
 export const describeRoomLayout = async (imageBase64: string): Promise<string> => {
     try {
-        const prompt = `Act as an Architect. Analyze this interior image and describe the structural layout in detail (walls, furniture, stairs). Reply in English, concisely.`;
+        // PROMPT SIÊU CHI TIẾT ĐỂ MÔ TẢ VỊ TRÍ KHÔNG GIAN
+        const prompt = `You are an expert Architectural Analyst. Your task is to describe the EXACT SPATIAL LAYOUT of this interior image so another AI can recreate the SAME structure.
+
+CRITICAL: Be EXTREMELY SPECIFIC about positions using LEFT/RIGHT/CENTER/FRONT/BACK references.
+
+Analyze and describe:
+1. CAMERA VIEWPOINT: Where is the camera positioned? (e.g., "Camera facing the back wall from the front entrance")
+2. STAIRCASE POSITION: Is there a staircase? LEFT side, RIGHT side, or CENTER? Going up or down? How many steps visible?
+3. WINDOWS: How many windows? On which wall (LEFT wall, RIGHT wall, BACK wall)? Size (large, small)?
+4. DOORS: Any doors visible? Position?
+5. COLUMNS/PILLARS: Any structural columns? Position?
+6. CEILING: Flat or sloped? Exposed beams? Height estimate?
+7. WALLS: Brick, concrete, plastered? Which walls are visible?
+8. FLOOR: Concrete, tiles, dirt?
+9. LIGHTING: Where is the main light source coming from? (LEFT window, RIGHT window, ceiling)
+10. PEOPLE/OBJECTS: Any people or construction materials visible? Where?
+
+FORMAT YOUR RESPONSE AS A SINGLE PARAGRAPH IN ENGLISH, example:
+"Camera facing the back wall. LEFT side: concrete staircase going up with 10 steps visible. RIGHT wall: 3 large rectangular windows letting in natural light. BACK wall: glass door or opening. FRONT LEFT: vertical pipe. Ceiling: exposed concrete beams. Floor: raw concrete. Two workers standing in the center-right area."
+
+BE PRECISE ABOUT LEFT/RIGHT/CENTER POSITIONS!`;
 
         const parts = [
             { text: prompt },
@@ -107,15 +127,19 @@ export const describeRoomLayout = async (imageBase64: string): Promise<string> =
         ];
 
         const ai = getAI();
-        console.log("📡 Calling Gemini SDK for room analysis...");
+        console.log("📡 Calling Gemini SDK for DETAILED room analysis...");
         const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',
             contents: [{ role: 'user', parts }]
         });
-        return response.text || "";
+
+        const description = response.text || "";
+        console.log("🏗️ Room Layout Description:", description);
+        return description;
+
     } catch (error) {
         console.error("❌ Gemini Vision Error:", error);
-        return "An interior construction site, raw brick walls, concrete ceilings, same structural layout as uploaded base image.";
+        return "An interior construction site, raw brick walls, concrete ceilings. Staircase on the LEFT side. Windows on the RIGHT wall.";
     }
 };
 

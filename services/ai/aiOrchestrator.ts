@@ -74,30 +74,56 @@ export const renderVisual = async (
     STYLE: Highly realistic showroom style, sharp textures, 8K.`;
 
     try {
-        // BƯỚC A: PHÂN TÍCH BỐI CẢNH (Bọc kỹ để không làm sập cả hàm)
-        console.log("🔍 Đang phân tích cấu trúc phòng...");
+        // BƯỚC A: PHÂN TÍCH BỐI CẢNH CHI TIẾT
+        console.log("🔍 Đang phân tích cấu trúc phòng chi tiết...");
         const roomDescription = await describeRoomLayout(baseImage);
+        console.log("📋 Mô tả không gian:", roomDescription);
 
-        // Cập nhật Flux Prompt với bối cảnh chi tiết hơn
-        fluxPrompt = `PHUONG NAM STUDIO ARCHITECTURAL RENDER. 
-ROOM CONTEXT: ${roomDescription}. 
-STRICT MANDATE: Existing raw construction site with brick walls and concrete structure. DO NOT CHANGE the room geometry, stairs, or doors.
-TILES TO APPLY: Use ${floorDesc} for flooring, ${darkDesc} for lower walls, and ${lightDesc} for upper walls following ${tilingLogic}.
-STYLE: Ultra-realistic architecture photography, 8K resolution, sharp tiling textures, professional lighting.`;
+        // BƯỚC B: XÂY DỰNG PROMPT SIÊU CHI TIẾT CHO IMAGEN 3
+        // Prompt này được thiết kế để ép AI giữ đúng vị trí không gian
+        const imagenPrompt = `
+[ARCHITECTURAL VISUALIZATION TASK - GRANDCERA STUDIO]
 
-        const vietnamesePrompt = `YÊU CẦU DIỄN HỌA KIẾN TRÚC GRANDCERA V12.0
-        - BỐI CẢNH: ${roomDescription}
-        - VẬT LIỆU: Sàn (${floorDesc}), Tường Đậm (${darkDesc}), Tường Nhạt (${lightDesc}).
-        - PHƯƠNG ÁN: ${tilingLogic}
-        - QUY ĐỊNH: GIỮ NGUYÊN KIẾN TRÚC NHÀ, chỉ thay đổi mảng gạch và sơn.`;
+[CRITICAL SPATIAL LAYOUT - MUST MATCH EXACTLY]:
+${roomDescription}
 
-        // BƯỚC B: THỬ RENDER VỚI IMAGEN 3 (VERTEX AI)
-        console.log("🚀 Đang thử Render với Imagen 3 (Vertex AI)...");
+[MANDATORY CONSTRAINTS]:
+1. STAIRCASE POSITION: Keep the staircase in the EXACT SAME position as described above (LEFT/RIGHT/CENTER). DO NOT MOVE IT.
+2. WINDOWS: Keep ALL windows in their EXACT positions. Same number, same wall.
+3. COLUMNS/PILLARS: Preserve ALL structural columns in their original positions.
+4. CAMERA ANGLE: Maintain the SAME perspective and viewpoint.
+5. ROOM SHAPE: The room geometry MUST remain identical.
+
+[MATERIAL APPLICATION]:
+- FLOOR: Apply ${floorDesc}. Perspective-aligned tiles.
+- WALLS: ${tilingLogic}
+  - Dark/Main Tile: ${darkDesc}
+  - Light Tile: ${lightDesc}
+  - Accent: ${accentDesc}
+
+[STYLE]:
+- Photorealistic, 8K resolution
+- Natural lighting from existing windows
+- Sharp tile textures, visible grout lines
+- Keep raw construction site atmosphere where tiles are not applied
+
+[NEGATIVE PROMPT - THINGS TO AVOID]:
+- DO NOT add furniture
+- DO NOT change room structure
+- DO NOT move staircase
+- DO NOT remove windows
+- DO NOT add or remove doors
+`;
+
+        // BƯỚC C: GỌI IMAGEN 3
+        console.log("🚀 Đang Render với Imagen 3 (Vertex AI)...");
         try {
-            return await renderWithImagen(fluxPrompt);
+            return await renderWithImagen(imagenPrompt);
         } catch (imagenError: any) {
             console.warn("⚠️ Imagen 3 gặp sự cố, chuyển sang Flux!", imagenError?.message);
-            throw imagenError;
+            // Fallback prompt ngắn gọn hơn cho Flux
+            const fluxFallbackPrompt = `Architectural interior: ${roomDescription}. Floor: ${floorDesc}. Walls: ${tilingLogic}. Photorealistic 8K. Keep exact room layout.`;
+            return await renderWithFlux(fluxFallbackPrompt);
         }
 
     } catch (error: any) {
