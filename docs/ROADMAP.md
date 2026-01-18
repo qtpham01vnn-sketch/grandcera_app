@@ -7,6 +7,7 @@
 - [x] **V12.3:** Gemini SDK Migration, Google Cloud Billing, cập nhật Pollinations endpoint mới.
 - [x] **V12.4:** Tích hợp Imagen 3 (Vertex AI) cho chất lượng render Photorealistic 8K.
 - [x] **V12.5:** Vercel Production Deployment với Environment Variables cho Imagen 3.
+- [x] **V12.6:** Nâng cấp Prompt Kỹ thuật, Smart Chat Lưu Gạch, và History Slider.
 
 ---
 

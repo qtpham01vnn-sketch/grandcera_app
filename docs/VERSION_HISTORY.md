@@ -3,6 +3,13 @@
 
 ## Phiên bản Hiện tại: V12.3 (Tháng 1/2026)
 
+### V12.6 - "Smart Workflow & History" (18/01/2026)
+- **Structured Technical Prompt:** Nâng cấp AI Orchestrator với logic mô tả hình học 3D và Negative Prompt bảo vệ cấu trúc.
+- **Smart Tile Chat:** AI tự động phân tích ảnh gạch trong Chat, trả về dữ liệu có cấu trúc JSON.
+- **Tile Save Modal:** Khi bấm "Lưu vào kho", hiện Modal hỏi người dùng chọn loại gạch (Sàn/Tường/Điểm nhấn).
+- **Render History Slider:** Tự động lưu lịch sử render, cho phép so sánh trực quan giữa các Phương Án ốp lát.
+- **UX Enhancements:** Auto-select gạch sau khi lưu từ Chat, giới hạn 10 ảnh trong History.
+
 ### V12.5 - "Vercel Production Deployment" (18/01/2026)
 - **Environment Variables**: Cấu hình `GOOGLE_CREDENTIALS` trên Vercel để bảo mật Service Account Key.
 - **Production Ready**: Imagen 3 hoạt động ổn định trên cả Local và Production.

@@ -59,6 +59,9 @@ const App: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  // State lưu lịch sử render để so sánh các Phương Án
+  const [renderHistory, setRenderHistory] = useState<{ id: number; imageUrl: string; method: string; timestamp: number }[]>([]);
+
   useEffect(() => {
     if (currentUser && currentUser.status === 'pending') {
       const unsubscribe = authService.checkUserStatus(currentUser.email, (newStatus) => {
@@ -105,40 +108,89 @@ const App: React.FC = () => {
     setLoginLoading(false);
   };
 
+  // State mới cho việc Lưu Gạch
+  const [tempTileData, setTempTileData] = useState<any | null>(null); // Dữ liệu gạch AI phân tích được
+  const [showSaveModal, setShowSaveModal] = useState(false); // Hiển thị modal chọn loại gạch
+
   const handleSendMessage = async () => {
     if (!chatInput.trim() && !chatImage) return;
     const userMsg = chatInput;
     const currentImg = chatImage;
+
+    // Optimistic Update UI
     setMessages(prev => [...prev, { role: 'user', text: userMsg, image: currentImg || undefined }]);
     setChatInput('');
     setChatImage(null);
     setIsSendingChat(true);
+
     try {
-      const aiResponse = await aiService.getAIChatResponse(userMsg, currentImg || undefined);
-      setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+      const aiResponseRaw = await aiService.getAIChatResponse(userMsg, currentImg || undefined);
+
+      // LOGIC PARSE JSON TỪ AI RESPONSE
+      // Format mong đợi: "Lời thoại... ||TILE_DATA_START|| {json} ||TILE_DATA_END||"
+      let displayMsg = aiResponseRaw;
+      let tileDataJson = null;
+
+      if (aiResponseRaw.includes('||TILE_DATA_START||')) {
+        const parts = aiResponseRaw.split('||TILE_DATA_START||');
+        displayMsg = parts[0].trim(); // Phần lời thoại
+        const jsonPart = parts[1].split('||TILE_DATA_END||')[0];
+        try {
+          tileDataJson = JSON.parse(jsonPart);
+          // Tự động gán ảnh vào JSON để lưu
+          tileDataJson.tile_image_url = currentImg;
+        } catch (e) {
+          console.error("Lỗi parse JSON gạch từ AI", e);
+        }
+      }
+
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        text: displayMsg,
+        // Nếu có data gạch, lưu vào message để hiển thị nút Lưu
+        tileData: tileDataJson
+      } as any]);
+
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Lỗi kết nối rồi anh Tuấn ơi!' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: 'Mạng hơi yếu, anh Tuấn thử lại giúp em nhé!' }]);
     } finally { setIsSendingChat(false); }
   };
 
-  const handleSaveTileFromChat = (imageUrl: string) => {
-    const isFloor = window.confirm("Bấm OK để lưu vào 'GẠCH SÀN'\nBấm Cancel để lưu vào 'GẠCH TƯỜNG'");
+  // Hàm mở Modal xác nhận lưu
+  const openSaveTileModal = (tileData: any) => {
+    setTempTileData(tileData); // Lưu tạm dữ liệu vào state
+    setShowSaveModal(true);    // Bật Modal
+  };
+
+  // Hàm thực thi Lưu sau khi chọn loại (Floor/Wall/Accent)
+  const confirmSaveTile = (type: 'floor' | 'wall' | 'accent') => {
+    if (!tempTileData) return;
+
     const newTile: TileData = {
-      tile_id: `CHAT_${Date.now()}`,
-      tile_type: isFloor ? 'floor' : 'wall',
-      detailed_type: isFloor ? undefined : 'dark',
-      tile_size: 'Custom',
-      tile_surface: 'Glossy',
-      tile_material: 'Porcelain',
-      tile_coverage_per_box: 1.44,
-      tile_image_url: imageUrl,
-      name: `GẠCH CHAT ${tiles.length + 1}`,
-      description: 'Gạch thực tế từ ảnh chat.',
-      brand: 'Grandcera'
+      tile_id: `AI_${Date.now()}`,
+      name: tempTileData.name || `Gạch Mới ${tiles.length}`,
+      description: tempTileData.description || 'Gạch từ Chat AI',
+      tile_type: type === 'floor' ? 'floor' : 'wall',
+      // Map logic: Accent -> Wall type + detail accent
+      detailed_type: type === 'accent' ? 'accent' : (type === 'wall' ? 'dark' : undefined),
+      tile_size: tempTileData.size || 'Unknown',
+      tile_surface: tempTileData.tile_surface || 'Unknown',
+      tile_material: 'Porcelain', // Mặc định cho gạch từ AI
+      tile_image_url: tempTileData.tile_image_url || 'https://via.placeholder.com/150',
+      brand: 'Phuong Nam AI',
+      tile_coverage_per_box: 1.44
     };
-    setTiles([newTile, ...tiles]);
-    if (isFloor) setSelectedFloor(newTile); else setSelectedDark(newTile);
-    alert("Đã lưu vào kho gạch mẫu bên phải!");
+
+    setTiles([newTile, ...tiles]); // Thêm vào đầu danh sách
+
+    // Auto-select based on type
+    if (type === 'floor') setSelectedFloor(newTile);
+    if (type === 'wall') setSelectedDark(newTile);
+    if (type === 'accent') setSelectedAccent(newTile);
+
+    setShowSaveModal(false);
+    setTempTileData(null);
+    alert(`✅ Đã lưu "${newTile.name}" vào kho ${type.toUpperCase()}!`);
   };
 
   const handleSaveDesign = async () => {
@@ -182,6 +234,18 @@ const App: React.FC = () => {
     try {
       const url = await aiService.renderVisual(selectedFloor || tiles[0], selectedDark, selectedLight, selectedAccent, selectedPaint, tilingMethod, roomImage, chatImageRefs);
       setCurrentVisual(url);
+
+      // LƯU VÀO LỊCH SỬ RENDER
+      setRenderHistory(prev => [
+        {
+          id: Date.now(),
+          imageUrl: url,
+          method: currentMethod?.name || tilingMethod,
+          timestamp: Date.now()
+        },
+        ...prev // Ảnh mới nhất ở đầu
+      ].slice(0, 10)); // Giữ tối đa 10 ảnh
+
     } catch (err) { alert("Lỗi render, anh thử lại nhé!"); } finally { setIsLoading(false); }
   };
 
@@ -356,16 +420,34 @@ const App: React.FC = () => {
             ) : activeLeftTab === 'chat' ? (
               <div className="h-full flex flex-col">
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 mb-4">
-                  {messages.map((m, i) => (
+                  {messages.map((m: any, i) => (
                     <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[85%] p-3 rounded-2xl text-[10px] ${m.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`}>
-                        {m.image && (
-                          <div className="relative mb-2 group">
+                        {/* USER MESSAGE: Hiển thị ảnh gửi lên */}
+                        {m.role === 'user' && m.image && (
+                          <div className="relative mb-2">
                             <img src={m.image} className="w-full rounded-lg border border-white/10" alt="Chat" />
-                            <button onClick={() => handleSaveTileFromChat(m.image!)} className="absolute bottom-2 right-2 px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-md text-[7px] font-black uppercase opacity-0 group-hover:opacity-100 hover:bg-green-600 transition-all"><i className="fas fa-plus mr-1"></i> Lưu mẫu</button>
                           </div>
                         )}
-                        {m.text}
+
+                        {/* TEXT MESSAGE CONTENT */}
+                        <div className="whitespace-pre-wrap">{m.text}</div>
+
+                        {/* AI MESSAGE: Hiển thị Thẻ Gạch (Nếu có data) */}
+                        {m.role === 'ai' && m.tileData && (
+                          <div className="mt-3 p-3 bg-black/40 rounded-xl border border-white/10">
+                            <div className="flex gap-3 mb-2">
+                              <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center text-2xl">🧱</div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-[#701a1a] truncate">{m.tileData.name}</div>
+                                <div className="text-[9px] text-slate-400">{m.tileData.size} • {m.tileData.tile_surface}</div>
+                              </div>
+                            </div>
+                            <button onClick={() => openSaveTileModal(m.tileData)} className="w-full py-2 bg-[#701a1a] rounded-lg text-white font-bold uppercase text-[9px] hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                              <i className="fas fa-save"></i> Lưu vào kho
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -448,6 +530,37 @@ const App: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* THANH LỊCH SỬ RENDER (HISTORY SLIDER) */}
+          {renderHistory.length > 0 && (
+            <div className="mt-4 glass-card border border-white/10 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <i className="fas fa-history text-[#701a1a]"></i> LỊCH SỬ PHƯƠNG ÁN ({renderHistory.length})
+                </p>
+                <button onClick={() => setRenderHistory([])} className="text-[8px] text-red-500 hover:text-red-400 uppercase font-bold">Xóa lịch sử</button>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                {renderHistory.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => setCurrentVisual(item.imageUrl)}
+                    className={`relative flex-shrink-0 w-28 h-20 rounded-xl overflow-hidden border-2 cursor-pointer transition-all hover:scale-105 group ${currentVisual === item.imageUrl ? 'border-[#701a1a] ring-2 ring-[#701a1a]/50' : 'border-white/10'}`}
+                  >
+                    <img src={item.imageUrl} className="w-full h-full object-cover" alt={item.method} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-2">
+                      <span className="text-[7px] font-bold uppercase truncate text-white">{item.method.replace('PA', '')}</span>
+                    </div>
+                    {currentVisual === item.imageUrl && (
+                      <div className="absolute top-1 right-1 w-4 h-4 bg-[#701a1a] rounded-full flex items-center justify-center">
+                        <i className="fas fa-check text-white text-[6px]"></i>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <aside className={`${rightPanelOpen ? 'w-[450px]' : 'w-0'} transition-all duration-500 bg-black/30 border-l border-white/5 flex flex-col z-40 overflow-hidden`}>
@@ -548,6 +661,49 @@ const App: React.FC = () => {
         <button onClick={() => setLeftPanelOpen(!leftPanelOpen)} className="absolute left-0 top-1/2 -translate-y-1/2 z-[50] w-6 h-20 bg-[#701a1a]/20 hover:bg-[#701a1a] border border-white/10 rounded-r-xl flex items-center justify-center transition-all"><i className={`fas fa-chevron-${leftPanelOpen ? 'left' : 'right'} text-[10px]`}></i></button>
         <button onClick={() => setRightPanelOpen(!rightPanelOpen)} className="absolute right-0 top-1/2 -translate-y-1/2 z-[50] w-6 h-20 bg-[#701a1a]/20 hover:bg-[#701a1a] border border-white/10 rounded-l-xl flex items-center justify-center transition-all"><i className={`fas fa-chevron-${rightPanelOpen ? 'right' : 'left'} text-[10px]`}></i></button>
       </div>
+
+      {/* MODAL LƯU GẠCH TỪ CHAT */}
+      {showSaveModal && tempTileData && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1a1a1a] border border-[#701a1a] rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onClick={() => setShowSaveModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
+
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-white mb-2">LƯU MẪU GẠCH MỚI</h3>
+              <p className="text-sm text-slate-400">AI đã trích xuất thông tin từ ảnh</p>
+            </div>
+
+            <div className="flex gap-4 mb-6 bg-black/20 p-4 rounded-xl">
+              <img src={tempTileData.tile_image_url} className="w-20 h-20 object-cover rounded-lg border border-white/10" alt="Preview" />
+              <div className="text-left">
+                <div className="text-[#701a1a] font-bold text-lg">{tempTileData.name}</div>
+                <div className="text-xs text-slate-400 mt-1">{tempTileData.size} | {tempTileData.tile_surface}</div>
+                <div className="text-xs text-slate-500 mt-1 italic line-clamp-2">{tempTileData.description}</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-slate-300 uppercase mb-2">Chọn loại gạch để lưu vào kho:</p>
+              <button onClick={() => confirmSaveTile('floor')} className="w-full py-3 bg-[#701a1a]/20 border border-[#701a1a] hover:bg-[#701a1a] rounded-lg flex items-center px-4 gap-3 transition-all group">
+                <span className="text-xl">🟧</span>
+                <span className="font-bold text-sm text-white">Gạch Lát Sàn (Floor)</span>
+                <i className="fas fa-arrow-right ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
+              </button>
+              <button onClick={() => confirmSaveTile('wall')} className="w-full py-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg flex items-center px-4 gap-3 transition-all group">
+                <span className="text-xl">🧱</span>
+                <span className="font-bold text-sm text-white">Gạch Ốp Tường (Wall)</span>
+                <i className="fas fa-arrow-right ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
+              </button>
+              <button onClick={() => confirmSaveTile('accent')} className="w-full py-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg flex items-center px-4 gap-3 transition-all group">
+                <span className="text-xl">✨</span>
+                <span className="font-bold text-sm text-white">Gạch Điểm Nhấn (Accent)</span>
+                <i className="fas fa-arrow-right ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

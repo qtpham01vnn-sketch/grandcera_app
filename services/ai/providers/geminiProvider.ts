@@ -37,10 +37,38 @@ export const analyzeTileFromImage = async (imageBase64: string): Promise<string>
 // ============================================
 // HÀM CHAT AI TƯ VẤN
 // ============================================
+// ============================================
+// HÀM CHAT AI TƯ VẤN + PHÂN TÍCH GẠCH THÔNG MINH
+// ============================================
 export const getAIChatResponse = async (message: string, imageBase64?: string) => {
-    const systemPrompt = "BẠN LÀ CHUYÊN GIA TƯ VẤN CỦA GRANDCERA - PHƯƠNG NAM STUDIO. Trả lời bằng tiếng Việt, chuyên nghiệp, ngắn gọn.";
+    // 1. System Prompt nâng cao
+    let systemPrompt = `BẠN LÀ CHUYÊN GIA TƯ VẤN VẬT LIỆU CỦA GRANDCERA.
+    - Trả lời Tiếng Việt thân thiện, chuyên nghiệp.
+    - Nếu khách hỏi về gạch, hãy tư vấn về phong cách, màu sắc.`;
+
+    // 2. Nếu có ảnh, kích hoạt chế độ phân tích gạch
+    if (imageBase64) {
+        systemPrompt += `
+        \n[NHIỆM VỤ ĐẶC BIỆT KHI CÓ ẢNH]:
+        1. Nhận diện mẫu gạch trong ảnh.
+        2. Tư vấn ngắn gọn về mẫu gạch này.
+        3. Ở CUỐI CÙNG phản hồi, BẮT BUỘC chèn một khối JSON dữ liệu gạch theo định dạng sau (để hệ thống lưu kho):
+        
+        ||TILE_DATA_START||
+        {
+            "name": "Tên gợi ý cho gạch (Ví dụ: Marble Carrara White)",
+            "description": "Mô tả ngắn về vân và bề mặt",
+            "size": "Kích thước ước lượng (Ví dụ: 600x600)",
+            "tile_surface": "Glossy hoặc Matte",
+            "tile_type": "floor" (nếu là gạch lát) hoặc "wall" (nếu là gạch ốp)
+        }
+        ||TILE_DATA_END||
+        `;
+    }
+
     const fullMessage = `${systemPrompt}\n\nKhách hỏi: ${message}`;
 
+    // Chuẩn bị payload gửi Gemini
     const parts: any[] = [{ text: fullMessage }];
     if (imageBase64) {
         parts.push({
@@ -50,15 +78,19 @@ export const getAIChatResponse = async (message: string, imageBase64?: string) =
 
     try {
         const ai = getAI();
-        console.log("📡 Calling Gemini SDK for chat...");
+        console.log("📡 Calling Gemini SDK for Chat & Analysis...");
         const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',
             contents: [{ role: 'user', parts }]
         });
-        return response.text || "";
+
+        const text = response.text || "";
+        console.log("🤖 AI Response:", text); // Log để debug xem có JSON không
+        return text;
+
     } catch (error) {
         console.error("❌ Gemini Chat Error:", error);
-        throw error;
+        return "Xin lỗi anh Tuấn, em đang gặp chút trục trặc khi phân tích ảnh. Anh gửi lại giúp em nhé!";
     }
 };
 
